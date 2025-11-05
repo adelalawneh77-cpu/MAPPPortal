@@ -1,0 +1,64 @@
+<div class="milestones-container">
+  <div class="header-section">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+      العودة
+    </button>
+    <div class="header-content">
+      <h2>معالمي (المهام)</h2>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>جاري تحميل المعالم...</p>
+  </div>
+
+  <div *ngIf="!isLoading && milestones.length === 0" class="empty-state">
+    <p>لا توجد معالم م assigned إليك</p>
+  </div>
+
+  <div *ngIf="!isLoading && milestones.length > 0" class="milestones-grid">
+    <div *ngFor="let milestone of milestones" class="milestone-card" [class]="getStatusClass(milestone)">
+      <div class="milestone-header">
+        <h3>{{ milestone.name }}</h3>
+        <span class="status-badge" [class]="getStatusClass(milestone)">
+{{ getStatusText(milestone) }}
+        </span>
+      </div>
+
+      <div class="milestone-info">
+        <div class="info-item" *ngIf="milestone.level && milestone.level.project">
+          <span class="label">المشروع:</span>
+          <span class="value">{{ milestone.level?.project?.name || '' }}</span>
+        </div>
+        <div class="info-item" *ngIf="milestone.level">
+          <span class="label">المستوى:</span>
+          <span class="value">{{ milestone.level.name }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">تاريخ البدء:</span>
+          <span class="value">{{ formatDate(milestone.startDate) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">تاريخ الانتهاء:</span>
+          <span class="value">{{ formatDate(milestone.endDate) }}</span>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-info">
+          <span class="progress-label">التقدم</span>
+          <span class="progress-value">{{ milestone.percentage | number:'1.2-2' }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width.%]="milestone.percentage">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

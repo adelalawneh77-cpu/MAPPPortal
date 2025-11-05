@@ -1,0 +1,331 @@
+<div class="projects-list-container">
+  <div class="header-section">
+    <h2>إدارة المشاريع والمستويات والمعالم</h2>
+    <button class="btn-add" (click)="addProject()">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+      </svg>
+      إضافة مشروع جديد
+    </button>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <button class="tab-button" [class.active]="activeTab === 'list'" (click)="switchTab('list')">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H4z"/>
+        <path d="M5 6a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 6zm0 2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 8z"/>
+      </svg>
+      قائمة المشاريع
+    </button>
+    <button class="tab-button" [class.active]="activeTab === 'overview'" (click)="switchTab('overview')">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+        <path d="M5 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+      </svg>
+      نظرة عامة
+    </button>
+  </div>
+
+  <!-- Projects List Tab -->
+  <div *ngIf="activeTab === 'list'">
+
+  <div *ngIf="isLoading" class="loading">
+    <p>جاري تحميل البيانات...</p>
+  </div>
+
+  <div *ngIf="!isLoading && projects.length === 0" class="empty-state">
+    <p>لا توجد مشاريع حالياً</p>
+    <button class="btn-add" (click)="addProject()">إضافة مشروع جديد</button>
+  </div>
+
+  <div *ngIf="!isLoading && projects.length > 0" class="projects-list">
+    <div *ngFor="let project of projects" class="project-card">
+      <div class="project-header" (click)="toggleProject(project.id)">
+        <div class="project-info">
+          <h3>{{ project.name }}</h3>
+          <div class="project-meta">
+            <span class="badge">{{ project.levels.length || 0 }} مستويات</span>
+            <span class="percentage-badge-large">{{ project.percentage | number:'1.2-2' }}%</span>
+          </div>
+        </div>
+        <div class="project-actions">
+          <button class="btn-icon btn-view" (click)="viewProject(project.id, $event)" title="عرض المشروع">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+              <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+            </svg>
+          </button>
+          <button class="btn-icon btn-edit" (click)="editProject(project.id, $event)" title="تعديل المشروع">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793l1.146 1.147a.5.5 0 0 1-.708.708L9.793 2.5 8.293 1.146a.5.5 0 0 0-.707 0l-6 6A.5.5 0 0 0 1.5 8v6a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .354-.146l6-6a.5.5 0 0 0 0-.708zM2.5 14V9.207l5.5-5.5L13.293 8l-5.5 5.5H2.5z"/>
+            </svg>
+          </button>
+          <button class="btn-icon" (click)="addLevel(project.id); $event.stopPropagation()" title="إضافة مستوى">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+            </svg>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteProject(project.id); $event.stopPropagation()" title="حذف المشروع">
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+              <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="project.description" class="project-description">
+        <p>{{ project.description }}</p>
+      </div>
+
+      <!-- Levels Section -->
+      <div *ngIf="selectedProjectId === project.id && project.levels" class="levels-section">
+        <div *ngIf="project.levels.length === 0" class="empty-levels">
+          <p>لا توجد مستويات لهذا المشروع</p>
+          <button class="btn-small" (click)="addLevel(project.id)">إضافة مستوى</button>
+        </div>
+
+        <div *ngFor="let level of project.levels" class="level-card">
+          <div class="level-header" (click)="toggleLevel(level.id)">
+            <div class="level-info">
+              <h4>{{ level.name }}</h4>
+              <div class="level-meta">
+                <span class="badge-small">{{ level.milestones.length || 0 }} معالم</span>
+                <span class="percentage-badge">{{ level.percentage | number:'1.2-2' }}%</span>
+              </div>
+            </div>
+            <div class="level-actions">
+              <button class="btn-icon-small btn-view" (click)="viewLevel(level.id, $event)" title="عرض المستوى">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                </svg>
+              </button>
+              <button class="btn-icon-small btn-edit" (click)="editLevel(level.id, $event)" title="تعديل المستوى">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793l1.146 1.147a.5.5 0 0 1-.708.708L9.793 2.5 8.293 1.146a.5.5 0 0 0-.707 0l-6 6A.5.5 0 0 0 1.5 8v6a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .354-.146l6-6a.5.5 0 0 0 0-.708zM2.5 14V9.207l5.5-5.5L13.293 8l-5.5 5.5H2.5z"/>
+                </svg>
+              </button>
+              <button class="btn-icon-small" (click)="addMilestone(level.id, project.id); $event.stopPropagation()" title="إضافة معلم">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+              </button>
+              <button class="btn-icon-small btn-delete" (click)="deleteLevel(level.id); $event.stopPropagation()" title="حذف المستوى">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                  <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Milestones Section -->
+          <div *ngIf="selectedLevelId === level.id && level.milestones" class="milestones-section">
+            <div *ngIf="level.milestones.length === 0" class="empty-milestones">
+              <p>لا توجد معالم لهذا المستوى</p>
+              <button class="btn-small" (click)="addMilestone(level.id, project.id)">إضافة معلم</button>
+            </div>
+
+            <div *ngFor="let milestone of level.milestones" class="milestone-item">
+              <div class="milestone-info">
+                <span class="milestone-name">{{ milestone.name }}</span>
+                <span class="milestone-percentage">{{ milestone.percentage }}%</span>
+              </div>
+              <div class="milestone-actions">
+                <button class="btn-icon-small btn-view" (click)="viewMilestone(milestone.id, $event)" title="عرض المعلم">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                  </svg>
+                </button>
+                <button class="btn-icon-small btn-edit" (click)="editMilestone(milestone.id, $event)" title="تعديل المعلم">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793l1.146 1.147a.5.5 0 0 1-.708.708L9.793 2.5 8.293 1.146a.5.5 0 0 0-.707 0l-6 6A.5.5 0 0 0 1.5 8v6a.5.5 0 0 0 .5.5h6a.5.5 0 0 0 .354-.146l6-6a.5.5 0 0 0 0-.708zM2.5 14V9.207l5.5-5.5L13.293 8l-5.5 5.5H2.5z"/>
+                  </svg>
+                </button>
+                <button class="btn-icon-small btn-delete" (click)="deleteMilestone(milestone.id)" title="حذف المعلم">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview'" class="overview-container">
+    <div *ngIf="isLoading" class="loading">
+      <p>جاري تحميل البيانات...</p>
+    </div>
+
+    <div *ngIf="!isLoading" class="overview-content">
+      <!-- Pie Chart Section -->
+      <div class="chart-section">
+        <h3>نظرة عامة على المشاريع</h3>
+        <div class="pie-chart-container">
+          <svg width="300" height="300" viewBox="0 0 300 300" class="pie-chart">
+            <!-- Background circle -->
+            <circle cx="150" cy="150" r="120" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
+            
+            <!-- Completed projects slice -->
+            <path *ngIf="getCompletedSlicePath()"
+                  [attr.d]="getCompletedSlicePath()"
+                  fill="#4CAF50"
+                  stroke="#fff"
+                  stroke-width="2"
+                  class="chart-slice completed-slice"/>
+            
+            <!-- In Progress projects slice -->
+            <path *ngIf="getInProgressSlicePath()"
+                  [attr.d]="getInProgressSlicePath()"
+                  fill="#FFC107"
+                  stroke="#fff"
+                  stroke-width="2"
+                  class="chart-slice inprogress-slice"/>
+            
+            <!-- Center circle for donut effect -->
+            <circle cx="150" cy="150" r="70" fill="#1a1a1a"/>
+            
+            <!-- Center text -->
+            <text x="150" y="145" text-anchor="middle" fill="#fff" font-size="24" font-weight="bold">
+              {{ projects.length }}
+            </text>
+            <text x="150" y="165" text-anchor="middle" fill="#aaa" font-size="14">
+              {{ projects.length === 0 ? 'لا توجد مشاريع' : (projects.length === 1 ? 'مشروع' : 'مشاريع') }}
+            </text>
+          </svg>
+        </div>
+
+        <!-- Legend -->
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: #4CAF50;"></div>
+            <div class="legend-info">
+              <span class="legend-label">مشاريع مكتملة</span>
+              <span class="legend-value">{{ completedProjects }}</span>
+            </div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background: #FFC107;"></div>
+            <div class="legend-info">
+              <span class="legend-label">مشاريع قيد التنفيذ</span>
+              <span class="legend-value">{{ inProgressProjects }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-cards">
+        <div class="stat-card completed-card">
+          <div class="stat-icon">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ completedProjects }}</div>
+            <div class="stat-label">مشاريع مكتملة</div>
+            <div class="stat-percentage" *ngIf="projects.length > 0">
+              {{ (completedProjects / projects.length * 100) | number:'1.1-1' }}%
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card inprogress-card">
+          <div class="stat-icon">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 1-.5.5H4.5a.5.5 0 0 0 0 1H7a1.5 1.5 0 0 0 1.5-1.5V3.5z"/>
+              <path d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ inProgressProjects }}</div>
+            <div class="stat-label">مشاريع قيد التنفيذ</div>
+            <div class="stat-percentage" *ngIf="projects.length > 0">
+              {{ (inProgressProjects / projects.length * 100) | number:'1.1-1' }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Project Modal -->
+  <div *ngIf="showAddProjectModal" class="modal-overlay" (click)="onAddProjectCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-add-project 
+        (projectAdded)="onProjectAdded()" 
+        (cancel)="onAddProjectCancel()">
+      </app-add-project>
+    </div>
+  </div>
+
+  <!-- Add Level Modal -->
+  <div *ngIf="showAddLevelModal" class="modal-overlay" (click)="onAddLevelCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-add-level 
+        [projectId]="modalData.projectId"
+        (levelAdded)="onLevelAdded()" 
+        (cancel)="onAddLevelCancel()">
+      </app-add-level>
+    </div>
+  </div>
+
+  <!-- Add Milestone Modal -->
+  <div *ngIf="showAddMilestoneModal" class="modal-overlay" (click)="onAddMilestoneCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-add-milestone 
+        [levelId]="modalData.levelId"
+        [projectId]="modalData.projectId"
+        (milestoneAdded)="onMilestoneAdded()" 
+        (cancel)="onAddMilestoneCancel()">
+      </app-add-milestone>
+    </div>
+  </div>
+
+  <!-- Edit/View Project Modal -->
+  <div *ngIf="showEditProjectModal || showViewProjectModal" class="modal-overlay" (click)="onEditProjectCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-edit-project 
+        [projectId]="modalData.projectId"
+        [viewMode]="modalData.viewMode"
+        (projectUpdated)="onProjectUpdated()" 
+        (cancel)="onEditProjectCancel()">
+      </app-edit-project>
+    </div>
+  </div>
+
+  <!-- Edit/View Level Modal -->
+  <div *ngIf="showEditLevelModal || showViewLevelModal" class="modal-overlay" (click)="onEditLevelCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-edit-level 
+        [levelId]="modalData.levelId"
+        [viewMode]="modalData.viewMode"
+        (levelUpdated)="onLevelUpdated()" 
+        (cancel)="onEditLevelCancel()">
+      </app-edit-level>
+    </div>
+  </div>
+
+  <!-- Edit/View Milestone Modal -->
+  <div *ngIf="showEditMilestoneModal || showViewMilestoneModal" class="modal-overlay" (click)="onEditMilestoneCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <app-edit-milestone 
+        [milestoneId]="modalData.milestoneId"
+        [viewMode]="modalData.viewMode"
+        (milestoneUpdated)="onMilestoneUpdated()" 
+        (cancel)="onEditMilestoneCancel()">
+      </app-edit-milestone>
+    </div>
+  </div>
+</div>
+

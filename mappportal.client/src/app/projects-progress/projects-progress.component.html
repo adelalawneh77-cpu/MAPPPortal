@@ -1,0 +1,61 @@
+<div class="progress-container">
+  <div class="header-section">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+      </svg>
+      العودة
+    </button>
+    <h2>تقدم المشاريع</h2>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>جاري تحميل البيانات...</p>
+  </div>
+
+  <div *ngIf="!isLoading && projects.length === 0" class="empty-state">
+    <p>لا توجد مشاريع</p>
+  </div>
+
+  <div *ngIf="!isLoading && projects.length > 0" class="projects-grid">
+    <div *ngFor="let project of projects" class="project-card">
+      <div class="project-header">
+        <h3>{{ project.name }}</h3>
+        <span class="status-badge" [class.completed]="isProjectCompleted(project)" [class.in-progress]="!isProjectCompleted(project)">
+          {{ isProjectCompleted(project) ? 'مكتمل' : 'قيد التنفيذ' }}
+        </span>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-info">
+          <span class="progress-label">التقدم الإجمالي</span>
+          <span class="progress-value">{{ getProjectProgress(project) | number:'1.2-2' }}%</span>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" [style.width.%]="getProjectProgress(project)">
+            <div class="progress-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="levels-section">
+        <h4>المستويات</h4>
+        <div *ngFor="let level of project.levels" class="level-item">
+          <div class="level-header-small">
+            <span class="level-name">{{ level.name }}</span>
+            <span class="level-percentage">{{ getLevelProgress(level) | number:'1.2-2' }}%</span>
+          </div>
+          <div class="progress-bar-container small">
+            <div class="progress-bar" [style.width.%]="getLevelProgress(level)">
+              <div class="progress-fill"></div>
+            </div>
+          </div>
+          <div class="milestones-count">
+             {{ level.milestones.length || 0 }} معلم
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

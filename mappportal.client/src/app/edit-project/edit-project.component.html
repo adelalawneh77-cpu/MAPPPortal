@@ -1,0 +1,72 @@
+<div class="edit-project-container">
+  <div class="header">
+    <h2>{{ viewMode ? 'عرض المشروع' : 'تعديل المشروع' }}</h2>
+    <div class="header-actions">
+      <button class="btn-view" *ngIf="!viewMode" (click)="setViewMode(true)">عرض</button>
+      <button class="btn-edit" *ngIf="viewMode" (click)="setViewMode(false)">تعديل</button>
+      <button class="btn-close" (click)="onCancel()">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>جاري تحميل البيانات...</p>
+  </div>
+
+  <form *ngIf="!isLoading && project" [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">اسم المشروع <span class="required">*</span></label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        class="form-input"
+        placeholder="أدخل اسم المشروع"
+        [readonly]="viewMode"
+      />
+      <div class="error-message" *ngIf="projectForm.get('name')?.hasError('required') && projectForm.get('name')?.touched">
+        اسم المشروع مطلوب
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">الوصف</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        class="form-input"
+        rows="4"
+        placeholder="أدخل وصف المشروع"
+        [readonly]="viewMode"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="issues">المشاكل</label>
+      <textarea
+        id="issues"
+        formControlName="issues"
+        class="form-input"
+        rows="4"
+        placeholder="أدخل المشاكل المرتبطة بالمشروع"
+        [readonly]="viewMode"
+      ></textarea>
+    </div>
+
+    <div class="form-group" *ngIf="project">
+      <label>نسبة الإنجاز</label>
+      <div class="percentage-display">{{ project.percentage | number:'1.2-2' }}%</div>
+    </div>
+
+    <div class="form-actions" *ngIf="!viewMode">
+      <button type="submit" class="btn-submit" [disabled]="!projectForm.valid || isSubmitting">
+        <span *ngIf="!isSubmitting">حفظ التغييرات</span>
+        <span *ngIf="isSubmitting">جاري الحفظ...</span>
+      </button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">إلغاء</button>
+    </div>
+  </form>
+</div>

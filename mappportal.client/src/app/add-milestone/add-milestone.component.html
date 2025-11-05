@@ -1,0 +1,142 @@
+<div class="modal-form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>إضافة معلم جديد</h2>
+      <button class="close-btn" (click)="onCancel()">
+        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="milestoneForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="projectId">المشروع</label>
+        <select
+          id="projectId"
+          formControlName="projectId"
+          class="form-input"
+          (change)="onProjectChange()"
+          [disabled]="isLoadingProjects"
+        >
+          <option value="">جميع المشاريع</option>
+          <option *ngFor="let project of projects" [value]="project.id">
+            {{ project.name }}
+          </option>
+        </select>
+        <div *ngIf="isLoadingProjects" class="loading-text">جاري تحميل المشاريع...</div>
+        <small class="form-hint">اختر المشروع لتصفية المستويات (اختياري)</small>
+      </div>
+
+      <div class="form-group">
+        <label for="levelId">المستوى <span class="required">*</span></label>
+        <select
+          id="levelId"
+          formControlName="levelId"
+          class="form-input"
+        >
+          <option value="">{{ selectedProjectId && levels.length === 0 ? 'لا توجد مستويات لهذا المشروع' : 'اختر المستوى' }}</option>
+          <option *ngFor="let level of levels" [value]="level.id">
+            {{ level.name }}
+          </option>
+        </select>
+        <div class="error-message" *ngIf="milestoneForm.get('levelId')?.hasError('required') && milestoneForm.get('levelId')?.touched">
+          يجب اختيار المستوى
+        </div>
+        <div *ngIf="isLoadingLevels" class="loading-text">جاري تحميل المستويات...</div>
+        <div *ngIf="selectedProjectId && levels.length === 0 && !isLoadingLevels" class="error-message">
+          لا توجد مستويات لهذا المشروع. يرجى إضافة مستوى أولاً.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="name">اسم المعلم <span class="required">*</span></label>
+        <input
+          type="text"
+          id="name"
+          formControlName="name"
+          class="form-input"
+          placeholder="أدخل اسم المعلم"
+        />
+        <div class="error-message" *ngIf="milestoneForm.get('name')?.hasError('required') && milestoneForm.get('name')?.touched">
+          اسم المعلم مطلوب
+        </div>
+        <div class="error-message" *ngIf="milestoneForm.get('name')?.hasError('maxlength') && milestoneForm.get('name')?.touched">
+          يجب ألا يتجاوز الاسم 200 حرف
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="percentage">النسبة المئوية (%) <span class="required">*</span></label>
+        <input
+          type="number"
+          id="percentage"
+          formControlName="percentage"
+          class="form-input"
+          placeholder="0"
+          min="0"
+          max="100"
+          step="0.01"
+        />
+        <div class="error-message" *ngIf="milestoneForm.get('percentage')?.hasError('required') && milestoneForm.get('percentage')?.touched">
+          النسبة المئوية مطلوبة
+        </div>
+        <div class="error-message" *ngIf="milestoneForm.get('percentage')?.hasError('min') && milestoneForm.get('percentage')?.touched">
+          يجب أن تكون النسبة المئوية 0 أو أكثر
+        </div>
+        <div class="error-message" *ngIf="milestoneForm.get('percentage')?.hasError('max') && milestoneForm.get('percentage')?.touched">
+          يجب ألا تتجاوز النسبة المئوية 100
+        </div>
+        <small class="form-hint">أدخل النسبة المئوية من 0 إلى 100</small>
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">تاريخ البدء</label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">تاريخ الانتهاء</label>
+        <input
+          type="date"
+          id="endDate"
+          formControlName="endDate"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="assignedUserId">تعيين للمستخدم</label>
+        <select
+          id="assignedUserId"
+          formControlName="assignedUserId"
+          class="form-input"
+          [disabled]="isLoadingUsers"
+        >
+          <option value="">لا يوجد</option>
+          <option *ngFor="let user of users" [value]="user.id">
+            {{ user.fullName || user.username }}
+          </option>
+        </select>
+        <div *ngIf="isLoadingUsers" class="loading-text">جاري تحميل المستخدمين...</div>
+        <small class="form-hint">اختر المستخدم لتعيين هذا المعلم إليه (اختياري)</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel" (click)="onCancel()" [disabled]="isSubmitting">
+          إلغاء
+        </button>
+        <button type="submit" class="btn btn-submit" [disabled]="!milestoneForm.valid || isSubmitting || isLoadingLevels">
+          <span *ngIf="!isSubmitting">حفظ</span>
+          <span *ngIf="isSubmitting">جاري الحفظ...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

@@ -1,0 +1,119 @@
+<div class="edit-milestone-container">
+  <div class="header">
+    <h2>{{ viewMode ? 'عرض المعلم' : 'تعديل المعلم' }}</h2>
+    <div class="header-actions">
+      <button class="btn-view" *ngIf="!viewMode" (click)="setViewMode(true)">عرض</button>
+      <button class="btn-edit" *ngIf="viewMode" (click)="setViewMode(false)">تعديل</button>
+      <button class="btn-close" (click)="onCancel()">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>جاري تحميل البيانات...</p>
+  </div>
+
+  <form *ngIf="!isLoading && milestone" [formGroup]="milestoneForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">اسم المعلم <span class="required">*</span></label>
+      <input
+        type="text"
+        id="name"
+        formControlName="name"
+        class="form-input"
+        placeholder="أدخل اسم المعلم"
+        [readonly]="viewMode"
+      />
+      <div class="error-message" *ngIf="milestoneForm.get('name')?.hasError('required') && milestoneForm.get('name')?.touched">
+        اسم المعلم مطلوب
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="percentage">نسبة الإنجاز (%) <span class="required">*</span></label>
+      <input
+        type="number"
+        id="percentage"
+        formControlName="percentage"
+        class="form-input"
+        min="0"
+        max="100"
+        step="0.01"
+        placeholder="0"
+        [readonly]="viewMode"
+      />
+      <div class="error-message" *ngIf="milestoneForm.get('percentage')?.hasError('required') && milestoneForm.get('percentage')?.touched">
+        نسبة الإنجاز مطلوبة
+      </div>
+      <div class="error-message" *ngIf="milestoneForm.get('percentage')?.hasError('min') || milestoneForm.get('percentage')?.hasError('max')">
+        يجب أن تكون النسبة بين 0 و 100
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="startDate">تاريخ البداية</label>
+        <input
+          type="date"
+          id="startDate"
+          formControlName="startDate"
+          class="form-input"
+          [readonly]="viewMode"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">تاريخ الانتهاء</label>
+        <input
+          type="date"
+          id="endDate"
+          formControlName="endDate"
+          class="form-input"
+          [readonly]="viewMode"
+        />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="assignedUserId">المستخدم المخصص</label>
+      <select
+        id="assignedUserId"
+        formControlName="assignedUserId"
+        class="form-input"
+        [disabled]="viewMode"
+      >
+        <option value="">لا يوجد</option>
+        <option *ngFor="let user of users" [value]="user.id">
+          {{ user.fullName || user.username }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group" *ngIf="milestone.level">
+      <label>المستوى</label>
+      <div class="info-display">{{ milestone.level.name }}</div>
+    </div>
+
+    <div class="form-group" *ngIf="milestone.level && milestone.level.project">
+      <label>المشروع</label>
+      <div class="info-display">{{ milestone.level.project.name }}</div>
+    </div>
+
+    <div class="form-group" *ngIf="milestone.assignedUser">
+      <label>المستخدم المخصص حالياً</label>
+      <div class="info-display">{{ milestone.assignedUser.fullName || milestone.assignedUser.username }}</div>
+    </div>
+
+    <div class="form-actions" *ngIf="!viewMode">
+      <button type="submit" class="btn-submit" [disabled]="!milestoneForm.valid || isSubmitting">
+        <span *ngIf="!isSubmitting">حفظ التغييرات</span>
+        <span *ngIf="isSubmitting">جاري الحفظ...</span>
+      </button>
+      <button type="button" class="btn-cancel" (click)="onCancel()">إلغاء</button>
+    </div>
+  </form>
+</div>
+
