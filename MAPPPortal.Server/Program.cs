@@ -59,8 +59,8 @@ builder.Services.AddCors(options =>
                     "https://localhost:4200",
                     "http://localhost:52830",
                     "https://adelalawneh77-cpu.github.io",
-                    "https://www.mirqabtoturial.com",
-                    "https://mirqabtoturial.com"
+                    "https://www.mirqabtutorial.com",
+                    "https://mirqabtutorial.com"
                   )
                   .AllowAnyMethod()
                   .AllowAnyHeader()
